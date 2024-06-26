@@ -579,7 +579,38 @@ require('lazy').setup({
         -- But for many setups, the LSP (`tsserver`) will work just fine
         -- tsserver = {},
         --
-
+        -- tailwindcss = {},
+        ansiblels = {},
+        tsserver = {},
+        bashls = {},
+        html = {
+          filetypes = { 'heex', 'html', 'eelixir' },
+        },
+        erlangls = {},
+        sqlls = {},
+        yamlls = {},
+        jsonls = {},
+        elixirls = {
+          -- cmd = {
+          --   vim.fn.expand '~/.elixir_ls/release/language_server.sh',
+          -- },
+          root_dir = function()
+            return os.getenv 'PWD'
+            --util.root_pattern(".git")
+          end,
+          capabilities = vim.lsp.protocol.make_client_capabilities(),
+          settings = {
+            elixirLS = {
+              suggestSpecs = false,
+              dialyzerEnabled = true,
+              signatureAfterComplete = false,
+              fetchDeps = false,
+              capabilities = {
+                document_formatting = true,
+              },
+            },
+          },
+        },
         lua_ls = {
           -- cmd = {...},
           -- filetypes = { ...},
@@ -837,7 +868,27 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc' },
+      ensure_installed = {
+        'bash',
+        'c',
+        'diff',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'vim',
+        'vimdoc',
+        'elixir',
+        'eex',
+        'heex',
+        'erlang',
+        'css',
+        'javascript',
+        'json',
+        'regex',
+        'vim',
+        'yaml',
+      },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
