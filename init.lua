@@ -591,14 +591,14 @@ require('lazy').setup({
         yamlls = {},
         jsonls = {},
         elixirls = {
-          -- cmd = {
-          --   vim.fn.expand '~/.elixir_ls/release/language_server.sh',
-          -- },
+          cmd = {
+            vim.fn.expand '~/.elixir_ls/release/language_server.sh',
+          },
           root_dir = function()
             return os.getenv 'PWD'
             --util.root_pattern(".git")
           end,
-          capabilities = vim.lsp.protocol.make_client_capabilities(),
+          -- capabilities = vim.lsp.protocol.make_client_capabilities(),
           settings = {
             elixirLS = {
               suggestSpecs = false,
@@ -743,7 +743,7 @@ require('lazy').setup({
             luasnip.lsp_expand(args.body)
           end,
         },
-        completion = { completeopt = 'menu,menuone,noinsert' },
+        completion = { autocomplete = false, completeopt = 'menu,menuone,noinsert' },
 
         -- For an understanding of why these mappings were
         -- chosen, you will need to read `:help ins-completion`
