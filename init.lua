@@ -157,6 +157,9 @@ vim.opt.scrolloff = 0
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
+-- Keymap to exit insert mode
+vim.keymap.set('i', 'jk', '<ESC>', { desc = 'Exit insert mode with jk' })
+
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
