@@ -426,6 +426,12 @@ require('lazy').setup({
       { 'folke/neodev.nvim', opts = {} },
     },
     config = function()
+      -- Fix LSP position encoding warnings
+      local original_make_position_params = vim.lsp.util.make_position_params
+      vim.lsp.util.make_position_params = function(window, offset_encoding)
+        return original_make_position_params(window, offset_encoding or 'utf-16')
+      end
+      
       -- Brief aside: **What is LSP?**
       --
       -- LSP is an initialism you've probably heard, but might not understand what it is.
@@ -555,6 +561,10 @@ require('lazy').setup({
       --  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
+      
+      -- Set position encoding to prevent warning messages
+      capabilities.general = capabilities.general or {}
+      capabilities.general.positionEncodings = { 'utf-16', 'utf-8' }
 
       -- Enable the following language servers
       --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
@@ -589,27 +599,7 @@ require('lazy').setup({
         sqlls = {},
         yamlls = {},
         jsonls = {},
-        elixirls = {
-          cmd = {
-            vim.fn.expand '~/.elixir_ls/release/language_server.sh',
-          },
-          root_dir = function()
-            return os.getenv 'PWD'
-            --util.root_pattern(".git")
-          end,
-          -- capabilities = vim.lsp.protocol.make_client_capabilities(),
-          settings = {
-            elixirLS = {
-              suggestSpecs = false,
-              dialyzerEnabled = true,
-              signatureAfterComplete = false,
-              fetchDeps = false,
-              capabilities = {
-                document_formatting = true,
-              },
-            },
-          },
-        },
+        elixirls = {},
         lua_ls = {
           -- cmd = {...},
           -- filetypes = { ...},
@@ -684,7 +674,7 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
-        elixir = { 'mix' },
+        -- elixir = { 'mix' }, -- Removed to use LSP formatting instead
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
