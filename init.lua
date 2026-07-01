@@ -207,6 +207,14 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+-- Set filetype for .sonicpi files
+vim.api.nvim_create_autocmd('BufRead', {
+  pattern = '*.sonicpi',
+  callback = function()
+    vim.bo.filetype = 'ruby' -- Sonic Pi uses Ruby syntax
+  end,
+})
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -431,7 +439,7 @@ require('lazy').setup({
       vim.lsp.util.make_position_params = function(window, offset_encoding)
         return original_make_position_params(window, offset_encoding or 'utf-16')
       end
-      
+
       -- Brief aside: **What is LSP?**
       --
       -- LSP is an initialism you've probably heard, but might not understand what it is.
@@ -561,7 +569,7 @@ require('lazy').setup({
       --  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
-      
+
       -- Set position encoding to prevent warning messages
       capabilities.general = capabilities.general or {}
       capabilities.general.positionEncodings = { 'utf-16', 'utf-8' }
@@ -591,6 +599,16 @@ require('lazy').setup({
         -- tailwindcss = {},
         ansiblels = {},
         ts_ls = {},
+        solargraph = {
+          filetypes = { 'ruby', 'sonicpi' },
+          settings = { solargraph = { diagnostics = true, single_file = true } },
+          on_init = function(client)
+            local ok, sonicpi = pcall(require, 'sonicpi')
+            if ok then
+              sonicpi.lsp_on_init(client, { server_dir = '/home/meit/tools/sonic-pi/app/server' })
+            end
+          end,
+        },
         bashls = {},
         html = {
           filetypes = { 'heex', 'html', 'eelixir' },
@@ -789,6 +807,7 @@ require('lazy').setup({
         },
         sources = {
           { name = 'nvim_lsp' },
+          { name = 'sonicpi' },
           { name = 'luasnip' },
           { name = 'path' },
         },
@@ -906,7 +925,28 @@ require('lazy').setup({
       --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
     end,
   },
-
+  -- Sonic Pi support
+  {
+    'magicmonty/sonicpi.nvim',
+    dependencies = {
+      'hrsh7th/nvim-cmp',
+      'nvim-tree/nvim-web-devicons',
+    },
+    config = function()
+      require('sonicpi').setup {
+        server_dir = '/home/meit/tools/sonic-pi/app/server',
+        -- Optional: enable LSP diagnostics
+        lsp_diagnostics = false,
+        -- Optional: override default mappings
+        mappings = {
+          { 'n', '<leader>r', require('sonicpi.remote').run_current_buffer, { noremap = true, silent = true } },
+          { 'n', '<leader>s', require('sonicpi.remote').stop, { noremap = true, silent = true } },
+          { 'i', '<M-r>', require('sonicpi.remote').run_current_buffer, { noremap = true, silent = true } },
+          { 'i', '<M-s>', require('sonicpi.remote').stop, { noremap = true, silent = true } },
+        },
+      }
+    end,
+  },
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
